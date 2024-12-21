@@ -10,6 +10,7 @@ export const useMemberStore = defineStore(
 
     // 保存会员信息，登录时使用
     const setProfile = (val: any) => {
+      console.log(val, 'setProfile')
       profile.value = val
     }
 
