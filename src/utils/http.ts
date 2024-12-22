@@ -40,3 +40,60 @@ const httpInterceptor = {
 
 uni.addInterceptor('request', httpInterceptor)
 uni.addInterceptor('uploadFile', httpInterceptor)
+
+/**
+ * @param UniApp.RequestOptions
+ * @return Promise
+ * 1. 返回promise对象
+ * 2. 请求成功
+ *  2.1 提取数据核心 res.data
+ *  2.2 添加类型，支持泛型
+ * 3. 请求失败
+ *  3.1 网络错误 -> 提示用户换网络
+ *  3.2 401错误 -> 清理用户信息, 跳转到登录页
+ *  3.3 其他错误 -> 根据后端错误信息轻提示
+ */
+
+interface Data<T> {
+  code: string
+  msg: string
+  result: T
+}
+
+export const http = <T>(options: UniApp.RequestOptions) => {
+  // 1. 返回Promise对象
+  return new Promise<Data<T>>((resolve, reject) => {
+    uni.request({
+      ...options,
+      //2. 请求成功
+      success(res) {
+        if (res.statusCode >= 200 && res.statusCode < 300) {
+          //2.1 返回核心数据
+          resolve(res.data as Data<T>)
+        } else if (res.statusCode === 401) {
+          // 3.2 401错误 -> 清理用户信息, 跳转到登录页
+          const memberStore = useMemberStore()
+          memberStore.clearProfile()
+          uni.navigateTo({ url: '/pages/login/login' })
+          reject(res)
+        } else {
+          // 3.3 其他错误 -> 根据后端错误信息轻提示
+          uni.showToast({
+            title: (res.data as Data<T>).msg || '请求错误',
+            icon: 'none',
+          })
+          reject(res)
+        }
+      },
+      //响应失败
+      fail(err) {
+        // 3.1 网络错误 -> 提示用户换网络
+        uni.showToast({
+          title: '网络错误',
+          icon: 'none',
+        })
+        reject(err)
+      },
+    })
+  })
+}
