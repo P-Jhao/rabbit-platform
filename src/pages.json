@@ -4,7 +4,8 @@
     "autoscan": true,
     "custom": {
       // uni-ui 规则如下配置  // [!code ++]
-      "^uni-(.*)": "@dcloudio/uni-ui/lib/uni-$1/uni-$1.vue" // [!code ++]
+      "^uni-(.*)": "@dcloudio/uni-ui/lib/uni-$1/uni-$1.vue", // [!code ++]
+      "^Xtx(.*)" : "@/components/Xtx$1"
     }
   },
   "pages": [
