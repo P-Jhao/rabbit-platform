@@ -1,35 +1,30 @@
 <script setup lang="ts">
+import type { BannerItem } from '@/types/banner'
 import { ref } from 'vue'
 
 const activeIndex = ref(0)
 const handleSwiperChange: UniHelper.SwiperOnChange = (e) => {
   activeIndex.value = e.detail.current
 }
+
+defineProps<{
+  list: BannerItem[]
+}>()
 </script>
 
 <template>
   <view class="carousel">
     <swiper :circular="true" :autoplay="false" :interval="3000" @change="handleSwiperChange">
-      <swiper-item>
+      <swiper-item v-for="item in list" :key="item.id">
         <navigator url="/pages/index/index" hover-class="none" class="navigator">
-          <image mode="aspectFill" class="image" src="@/static/uploads/slider_1.jpg"></image>
-        </navigator>
-      </swiper-item>
-      <swiper-item>
-        <navigator url="/pages/index/index" hover-class="none" class="navigator">
-          <image mode="aspectFill" class="image" src="@/static/uploads/slider_2.jpg"></image>
-        </navigator>
-      </swiper-item>
-      <swiper-item>
-        <navigator url="/pages/index/index" hover-class="none" class="navigator">
-          <image mode="aspectFill" class="image" src="@/static/uploads/slider_3.jpg"></image>
+          <image mode="aspectFill" class="image" :src="item.imgUrl"></image>
         </navigator>
       </swiper-item>
     </swiper>
     <!-- 指示点 -->
     <view class="indicator">
       <text
-        v-for="(item, index) in 3"
+        v-for="(item, index) in list.length"
         :key="item"
         class="dot"
         :class="{ active: index === activeIndex }"
