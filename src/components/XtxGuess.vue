@@ -1,13 +1,32 @@
 <script setup lang="ts">
 import { getHomeGoodsAPI } from '@/services/home'
+import type { PageParams } from '@/types/global'
 import type { GuessItem } from '@/types/home'
 import { onMounted, ref } from 'vue'
 
 const guessListRef = ref<GuessItem[]>([])
+const pageParams: Required<PageParams> = {
+  page: 1,
+  pageSize: 10,
+}
+const finishRef = ref(false)
+
 const getGoodsGuessData = async () => {
-  const res = await getHomeGoodsAPI()
-  guessListRef.value = res.result.items
-  console.log(res, 'getGoodsGuessData')
+  if (finishRef.value) {
+    return uni.showToast({
+      icon: 'none',
+      title: '没有更多数据了',
+    })
+  }
+  const res = await getHomeGoodsAPI(pageParams)
+  // guessListRef.value = res.result.items
+  // console.log(res, 'getGoodsGuessData')
+  guessListRef.value.push(...res.result.items)
+  if (pageParams.page < res.result.pages) {
+    pageParams.page++
+  } else {
+    finishRef.value = true
+  }
 }
 
 onMounted(() => {
@@ -39,13 +58,14 @@ defineExpose({
       </view>
     </navigator>
   </view>
-  <view class="loading-text"> 正在加载... </view>
+  <view class="loading-text"> {{ finishRef ? '没有更多数据了' : '正在加载...' }} </view>
 </template>
 
 <style lang="scss">
 :host {
   display: block;
 }
+
 /* 分类标题 */
 .caption {
   display: flex;
@@ -54,6 +74,7 @@ defineExpose({
   padding: 36rpx 0 40rpx;
   font-size: 32rpx;
   color: #262626;
+
   .text {
     display: flex;
     justify-content: center;
@@ -78,6 +99,7 @@ defineExpose({
   flex-wrap: wrap;
   justify-content: space-between;
   padding: 0 20rpx;
+
   .guess-item {
     width: 345rpx;
     padding: 24rpx 20rpx 20rpx;
@@ -86,10 +108,12 @@ defineExpose({
     overflow: hidden;
     background-color: #fff;
   }
+
   .image {
     width: 304rpx;
     height: 304rpx;
   }
+
   .name {
     height: 75rpx;
     margin: 10rpx 0;
@@ -101,16 +125,19 @@ defineExpose({
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
   }
+
   .price {
     line-height: 1;
     padding-top: 4rpx;
     color: #cf4444;
     font-size: 26rpx;
   }
+
   .small {
     font-size: 80%;
   }
 }
+
 // 加载提示文字
 .loading-text {
   text-align: center;
