@@ -7,10 +7,15 @@ const guessListRef = ref<GuessItem[]>([])
 const getGoodsGuessData = async () => {
   const res = await getHomeGoodsAPI()
   guessListRef.value = res.result.items
+  console.log(res, 'getGoodsGuessData')
 }
 
 onMounted(() => {
   getGoodsGuessData()
+})
+
+defineExpose({
+  getGoodsGuessData,
 })
 </script>
 
