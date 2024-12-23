@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { CategoryItem } from '@/types/banner'
+import type { CategoryItem } from '@/types/home'
 
 defineProps<{
   list: CategoryItem[]
