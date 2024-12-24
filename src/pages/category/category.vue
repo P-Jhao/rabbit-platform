@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { getCategoryTop } from '@/services/category'
 import { getHomeBannerAPI } from '@/services/home'
-import type { CategoryChildItem, CategoryTopItem } from '@/types/category'
+import type { CategoryTopItem } from '@/types/category'
 import type { BannerItem } from '@/types/home'
 import { onLoad } from '@dcloudio/uni-app'
 import { computed, ref } from 'vue'
+import Pageskeleton from './components/Pageskeleton.vue'
 
 //获取轮播图数据
 const bannerListRef = ref<BannerItem[]>([])
@@ -19,12 +20,12 @@ const activeIndexRef = ref(0)
 const getCategoryListData = async () => {
   const res = await getCategoryTop()
   categoryListRef.value = res.result
-  console.log(res)
 }
 
-onLoad(() => {
-  getBannerData()
-  getCategoryListData()
+const isFinishRef = ref(false)
+onLoad(async () => {
+  await Promise.all([getBannerData(), getCategoryListData()])
+  isFinishRef.value = true
 })
 
 //提取当前二级分类数据
@@ -34,7 +35,8 @@ const subCategoryListRef = computed(() => {
 </script>
 
 <template>
-  <view class="viewport">
+  <Pageskeleton v-if="!isFinishRef" />
+  <view class="viewport" v-else>
     <!-- 搜索框 -->
     <view class="search">
       <view class="input">
