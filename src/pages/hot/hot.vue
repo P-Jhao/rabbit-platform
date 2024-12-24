@@ -23,7 +23,7 @@ uni.setNavigationBarTitle({
 
 //获取热门推荐数据
 const bannerPictureRef = ref('')
-const subTypesRef = ref<SubTypeItem[]>([])
+const subTypesRef = ref<(SubTypeItem & { finish?: boolean })[]>([])
 const activeIndex = ref(0)
 const getHotRecomponentData = async () => {
   const res = await getHotComponentData(currUrlMap!.url)
@@ -31,15 +31,28 @@ const getHotRecomponentData = async () => {
   subTypesRef.value = res.result.subTypes
 }
 
+//处理获取更多数据
 const handlescrolltolower = async () => {
   const currSubType = subTypesRef.value[activeIndex.value]
+  if (currSubType.finish) {
+    return uni.showToast({
+      title: '没有更多数据了',
+      icon: 'none',
+    })
+  }
+  const goodsItems = currSubType.goodsItems
+
   const res = await getHotComponentData(currUrlMap!.url, {
-    page: currSubType.goodsItems.page++,
-    pageSize: currSubType.goodsItems.pageSize,
-    subType: `${currSubType.id}`,
+    page: ++goodsItems.page,
+    pageSize: goodsItems.pageSize,
+    subType: currSubType.id,
   })
+
   const newGoodsItem = res.result.subTypes[activeIndex.value].goodsItems.items
-  currSubType.goodsItems.items.push(...newGoodsItem)
+  goodsItems.items.push(...newGoodsItem)
+  if (goodsItems.page >= goodsItems.pages) {
+    currSubType.finish = true
+  }
 }
 
 onLoad(() => {
@@ -88,7 +101,7 @@ onLoad(() => {
           </view>
         </navigator>
       </view>
-      <view class="loading-text">正在加载...</view>
+      <view class="loading-text">{{ item.finish ? '没有更多数据了' : '正在加载...' }}</view>
     </scroll-view>
   </view>
 </template>
