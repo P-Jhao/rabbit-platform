@@ -29,7 +29,17 @@ const getHotRecomponentData = async () => {
   const res = await getHotComponentData(currUrlMap!.url)
   bannerPictureRef.value = res.result.bannerPicture
   subTypesRef.value = res.result.subTypes
-  console.log(res)
+}
+
+const handlescrolltolower = async () => {
+  const currSubType = subTypesRef.value[activeIndex.value]
+  const res = await getHotComponentData(currUrlMap!.url, {
+    page: currSubType.goodsItems.page++,
+    pageSize: currSubType.goodsItems.pageSize,
+    subType: `${currSubType.id}`,
+  })
+  const newGoodsItem = res.result.subTypes[activeIndex.value].goodsItems.items
+  currSubType.goodsItems.items.push(...newGoodsItem)
 }
 
 onLoad(() => {
@@ -60,6 +70,7 @@ onLoad(() => {
       v-for="(item, index) in subTypesRef"
       :key="item.id"
       v-show="activeIndex === index"
+      @scrolltolower="handlescrolltolower"
     >
       <view class="goods">
         <navigator
