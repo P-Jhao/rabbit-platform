@@ -39,11 +39,32 @@ const guessRef = ref<XtxGuessInstance>()
 const handleScrolltolower = () => {
   guessRef.value!.getGoodsGuessData()
 }
+
+//处理下拉刷新
+const isTriggeredRef = ref(false)
+const handleRefresherrefresh = async () => {
+  isTriggeredRef.value = true
+  guessRef.value!.resetData()
+  await Promise.all([
+    getHomeBannerData(),
+    getHomeCategoryData(),
+    getHotPanelData(),
+    guessRef.value!.getGoodsGuessData(),
+  ])
+  isTriggeredRef.value = false
+}
 </script>
 
 <template>
   <CustomNavbar />
-  <scroll-view class="scrollView" scroll-y @scrolltolower="handleScrolltolower">
+  <scroll-view
+    class="scrollView"
+    scroll-y
+    @scrolltolower="handleScrolltolower"
+    refresher-enabled
+    @refresherrefresh="handleRefresherrefresh"
+    :refresher-triggered="isTriggeredRef"
+  >
     <XtxSwiper :list="bannerListRef" />
     <CategoryPanel :list="categoryListRef" />
     <HotPanel :list="hotPanelListRef" />
@@ -58,6 +79,7 @@ page {
   flex-direction: column;
   height: 100%;
 }
+
 .scrollView {
   flex: 1;
 }

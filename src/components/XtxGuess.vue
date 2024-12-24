@@ -19,8 +19,6 @@ const getGoodsGuessData = async () => {
     })
   }
   const res = await getHomeGoodsAPI(pageParams)
-  // guessListRef.value = res.result.items
-  // console.log(res, 'getGoodsGuessData')
   guessListRef.value.push(...res.result.items)
   if (pageParams.page < res.result.pages) {
     pageParams.page++
@@ -29,12 +27,19 @@ const getGoodsGuessData = async () => {
   }
 }
 
+const resetData = () => {
+  pageParams.page = 1
+  guessListRef.value = []
+  finishRef.value = false
+}
+
 onMounted(() => {
   getGoodsGuessData()
 })
 
 defineExpose({
   getGoodsGuessData,
+  resetData,
 })
 </script>
 
