@@ -7,6 +7,7 @@ import { onLoad } from '@dcloudio/uni-app'
 import { ref } from 'vue'
 import type { BannerItem, CategoryItem, HotItem } from '@/types/home'
 import type { XtxGuessInstance } from '@/types/component'
+import PageSkeleton from './components/PageSkeleton.vue'
 
 //获取轮播图数据
 const bannerListRef = ref<BannerItem[]>([])
@@ -29,10 +30,12 @@ const getHotPanelData = async () => {
   hotPanelListRef.value = res.result
 }
 
-onLoad(() => {
-  getHomeBannerData()
-  getHomeCategoryData()
-  getHotPanelData()
+//处理第一次加载数据
+const isLoadingRef = ref(false)
+onLoad(async () => {
+  isLoadingRef.value = true
+  await Promise.all([getHomeBannerData(), getHomeCategoryData(), getHotPanelData()])
+  isLoadingRef.value = false
 })
 
 const guessRef = ref<XtxGuessInstance>()
@@ -57,6 +60,7 @@ const handleRefresherrefresh = async () => {
 
 <template>
   <CustomNavbar />
+
   <scroll-view
     class="scrollView"
     scroll-y
@@ -65,10 +69,13 @@ const handleRefresherrefresh = async () => {
     @refresherrefresh="handleRefresherrefresh"
     :refresher-triggered="isTriggeredRef"
   >
-    <XtxSwiper :list="bannerListRef" />
-    <CategoryPanel :list="categoryListRef" />
-    <HotPanel :list="hotPanelListRef" />
-    <XtxGuess ref="guessRef" />
+    <PageSkeleton v-if="isLoadingRef" />
+    <template v-else>
+      <XtxSwiper :list="bannerListRef" />
+      <CategoryPanel :list="categoryListRef" />
+      <HotPanel :list="hotPanelListRef" />
+      <XtxGuess ref="guessRef" />
+    </template>
   </scroll-view>
 </template>
 
