@@ -5,7 +5,7 @@ import type { CategoryTopItem } from '@/types/category'
 import type { BannerItem } from '@/types/home'
 import { onLoad } from '@dcloudio/uni-app'
 import { computed, ref } from 'vue'
-import Pageskeleton from './components/Pageskeleton.vue'
+import Pageskeleton from './components/PageSkeleton.vue'
 
 //获取轮播图数据
 const bannerListRef = ref<BannerItem[]>([])
