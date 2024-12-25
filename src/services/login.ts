@@ -1,3 +1,4 @@
+import type { LoginResult } from '@/types/member'
 import { http } from '@/utils/http'
 
 type LoginParams = {
@@ -8,7 +9,7 @@ type LoginParams = {
 
 // 小程序快捷登录
 export const postLoginWxMinAPI = async (data: LoginParams) => {
-  return await http({
+  return await http<LoginResult>({
     method: 'POST',
     url: '/login/wxMin',
     data,
@@ -17,7 +18,7 @@ export const postLoginWxMinAPI = async (data: LoginParams) => {
 
 // 小程序模拟手机登录（内测版）
 export const postLoginWxMinSimpleAPI = async (phoneNumber: string) => {
-  return await http({
+  return await http<LoginResult>({
     method: 'POST',
     url: '/login/wxMin/simple',
     data: {

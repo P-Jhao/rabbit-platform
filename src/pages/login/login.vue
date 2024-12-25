@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { postLoginWxMinAPI, postLoginWxMinSimpleAPI } from '@/services/login'
+import { useMemberStore } from '@/stores'
+import type { LoginResult } from '@/types/member'
 import { onLoad } from '@dcloudio/uni-app'
 
 let code = ''
@@ -18,13 +20,30 @@ const handelGetphonenumber: UniHelper.ButtonOnGetphonenumber = async (ev) => {
     encryptedData,
     iv,
   })
-  console.log(res)
+  loginSuccess(res.result)
 }
 
 // 手机号模拟登录
 const handelGetphonenumberSimple = async () => {
   const res = await postLoginWxMinSimpleAPI('13345673456')
-  console.log(res)
+  loginSuccess(res.result)
+}
+
+// 封装登录函数
+const loginSuccess = (profile: LoginResult) => {
+  const memberStore = useMemberStore()
+  memberStore.setProfile(profile)
+
+  uni.showToast({
+    title: '登陆成功',
+    icon: 'success',
+  })
+
+  setTimeout(() => {
+    uni.switchTab({
+      url: '/pages/my/my',
+    })
+  }, 500)
 }
 </script>
 
