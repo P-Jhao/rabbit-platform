@@ -35,6 +35,15 @@ const handleImgTap = (url: string) => {
     urls: goodsResultRef.value!.mainPictures,
   })
 }
+
+// 处理弹出层
+const popup = ref<{
+  open: (type?: UniHelper.UniPopupType) => void
+  close: () => void
+}>()
+const handleCloseTap = () => {
+  popup.value?.close()
+}
 </script>
 
 <template>
@@ -75,7 +84,7 @@ const handleImgTap = (url: string) => {
           <text class="label">送至</text>
           <text class="text ellipsis"> 请选择收获地址 </text>
         </view>
-        <view class="item arrow">
+        <view class="item arrow" @tap="() => popup?.open()">
           <text class="label">服务</text>
           <text class="text ellipsis"> 无忧退 快速退款 免费包邮 </text>
         </view>
@@ -150,6 +159,13 @@ const handleImgTap = (url: string) => {
       <view class="buynow"> 立即购买 </view>
     </view>
   </view>
+
+  <!-- 弹出层 -->
+  <uni-popup ref="popup" type="bottom" background-color="white">
+    <view>内容1</view>
+    <view>内容2</view>
+    <button @tap="handleCloseTap">关闭</button>
+  </uni-popup>
 </template>
 
 <style lang="scss">
