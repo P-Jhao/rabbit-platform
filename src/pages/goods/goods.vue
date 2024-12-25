@@ -17,12 +17,24 @@ const goodsResultRef = ref<GoodsResult>()
 const getGoodsData = async () => {
   const res = await getGoodsByIdAPI(query.id)
   goodsResultRef.value = res.result
-  console.log(res)
 }
 
 onLoad(() => {
   getGoodsData()
 })
+
+//处理轮播图下标
+const currentIndexRef = ref(0)
+const handleSwiperChange: UniHelper.SwiperOnChange = (e) => {
+  currentIndexRef.value = e.detail.current
+}
+// 处理大图预览
+const handleImgTap = (url: string) => {
+  uni.previewImage({
+    current: url,
+    urls: goodsResultRef.value!.mainPictures,
+  })
+}
 </script>
 
 <template>
@@ -31,15 +43,15 @@ onLoad(() => {
     <view class="goods">
       <!-- 商品主图 -->
       <view class="preview">
-        <swiper circular>
+        <swiper circular @change="handleSwiperChange">
           <swiper-item v-for="(item, index) in goodsResultRef?.mainPictures" :key="index">
-            <image mode="aspectFill" :src="item" />
+            <image mode="aspectFill" :src="item" @tap="handleImgTap(item)" />
           </swiper-item>
         </swiper>
         <view class="indicator">
-          <text class="current">1</text>
+          <text class="current">{{ currentIndexRef + 1 }}</text>
           <text class="split">/</text>
-          <text class="total">5</text>
+          <text class="total">{{ goodsResultRef?.mainPictures.length }}</text>
         </view>
       </view>
 
