@@ -1,6 +1,58 @@
 <script setup lang="ts">
+import { getMemberProfileAPI } from '@/services/profile'
+import type { ProfileDetail } from '@/types/member'
+import { onLoad } from '@dcloudio/uni-app'
+import { ref } from 'vue'
+
 // 获取屏幕边界到安全区域距离
 const { safeAreaInsets } = uni.getSystemInfoSync()
+
+// 处理用户信息
+const profileRef = ref<ProfileDetail>()
+const getProfileData = async () => {
+  const res = await getMemberProfileAPI()
+  profileRef.value = res.result
+  console.log(profileRef.value)
+}
+
+onLoad(() => {
+  getProfileData()
+})
+
+// 修改用户头像
+const handleAvatarUpload = async () => {
+  uni.chooseMedia({
+    count: 1,
+    mediaType: ['image'],
+    success(res) {
+      // 获取用户图片地址
+      const { tempFilePath } = res.tempFiles[0]
+      // 上传图片
+      uni.uploadFile({
+        url: '/member/profile/avatar',
+        filePath: tempFilePath,
+        name: 'file',
+        success: (res) => {
+          console.log(res)
+          if (res.statusCode === 200) {
+            // 上传成功
+            profileRef.value!.avatar = JSON.parse(res.data).avatar
+            uni.showToast({
+              title: '上传成功',
+              icon: 'success',
+            })
+          } else {
+            uni.showToast({
+              title: '出现错误',
+              icon: 'error',
+              mask: true,
+            })
+          }
+        },
+      })
+    },
+  })
+}
 </script>
 
 <template>
@@ -12,8 +64,8 @@ const { safeAreaInsets } = uni.getSystemInfoSync()
     </view>
     <!-- 头像 -->
     <view class="avatar">
-      <view class="avatar-content">
-        <image class="image" src=" " mode="aspectFill" />
+      <view class="avatar-content" @tap="handleAvatarUpload">
+        <image class="image" :src="profileRef?.avatar" mode="aspectFill" />
         <text class="text">点击修改头像</text>
       </view>
     </view>
@@ -23,21 +75,21 @@ const { safeAreaInsets } = uni.getSystemInfoSync()
       <view class="form-content">
         <view class="form-item">
           <text class="label">账号</text>
-          <text class="account">账号名</text>
+          <text class="account">{{ profileRef?.account }}</text>
         </view>
         <view class="form-item">
           <text class="label">昵称</text>
-          <input class="input" type="text" placeholder="请填写昵称" value="" />
+          <input class="input" type="text" placeholder="请填写昵称" :value="profileRef?.nickname" />
         </view>
         <view class="form-item">
           <text class="label">性别</text>
           <radio-group>
             <label class="radio">
-              <radio value="男" color="#27ba9b" :checked="true" />
+              <radio value="男" color="#27ba9b" :checked="profileRef?.gender !== '女'" />
               男
             </label>
             <label class="radio">
-              <radio value="女" color="#27ba9b" :checked="false" />
+              <radio value="女" color="#27ba9b" :checked="profileRef?.gender === '女'" />
               女
             </label>
           </radio-group>
@@ -49,22 +101,27 @@ const { safeAreaInsets } = uni.getSystemInfoSync()
             mode="date"
             start="1900-01-01"
             :end="new Date()"
-            value="2000-01-01"
+            :value="profileRef?.birthday"
           >
-            <view v-if="false">2000-01-01</view>
+            <view v-if="profileRef?.birthday">{{ profileRef.birthday }}</view>
             <view class="placeholder" v-else>请选择日期</view>
           </picker>
         </view>
         <view class="form-item">
           <text class="label">城市</text>
-          <picker class="picker" mode="region" :value="['广东省', '广州市', '天河区']">
-            <view v-if="false">广东省广州市天河区</view>
+          <picker class="picker" mode="region" :value="profileRef?.fullLocation?.split(' ')">
+            <view v-if="profileRef?.fullLocation">{{ profileRef.fullLocation }}</view>
             <view class="placeholder" v-else>请选择城市</view>
           </picker>
         </view>
         <view class="form-item">
           <text class="label">职业</text>
-          <input class="input" type="text" placeholder="请填写职业" value="" />
+          <input
+            class="input"
+            type="text"
+            placeholder="请填写职业"
+            :value="profileRef?.profession"
+          />
         </view>
       </view>
       <!-- 提交按钮 -->
