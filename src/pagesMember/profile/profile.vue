@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { getMemberProfileAPI } from '@/services/profile'
+import { getMemberProfileAPI, putMemberProfileAPI } from '@/services/profile'
 import type { ProfileDetail } from '@/types/member'
 import { onLoad } from '@dcloudio/uni-app'
 import { ref } from 'vue'
@@ -8,11 +8,10 @@ import { ref } from 'vue'
 const { safeAreaInsets } = uni.getSystemInfoSync()
 
 // 处理用户信息
-const profileRef = ref<ProfileDetail>()
+const profileRef = ref({} as ProfileDetail)
 const getProfileData = async () => {
   const res = await getMemberProfileAPI()
   profileRef.value = res.result
-  console.log(profileRef.value)
 }
 
 onLoad(() => {
@@ -53,6 +52,17 @@ const handleAvatarUpload = async () => {
     },
   })
 }
+
+// 提交修改用户信息
+const handleSubmitTap = async () => {
+  await putMemberProfileAPI({
+    nickname: profileRef.value?.nickname,
+  })
+  uni.showToast({
+    title: '保存成功',
+    icon: 'success',
+  })
+}
 </script>
 
 <template>
@@ -79,7 +89,12 @@ const handleAvatarUpload = async () => {
         </view>
         <view class="form-item">
           <text class="label">昵称</text>
-          <input class="input" type="text" placeholder="请填写昵称" :value="profileRef?.nickname" />
+          <input
+            class="input"
+            type="text"
+            placeholder="请填写昵称"
+            v-model="profileRef!.nickname"
+          />
         </view>
         <view class="form-item">
           <text class="label">性别</text>
@@ -125,7 +140,7 @@ const handleAvatarUpload = async () => {
         </view>
       </view>
       <!-- 提交按钮 -->
-      <button class="form-button">保 存</button>
+      <button class="form-button" @tap="handleSubmitTap">保 存</button>
     </view>
   </view>
 </template>
