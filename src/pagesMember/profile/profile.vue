@@ -69,13 +69,24 @@ const handleDateChange: UniHelper.DatePickerOnChange = (ev) => {
   profileRef.value.birthday = ev.detail.value
 }
 
+// 修改城市
+let codeArr: [string, string, string] = ['', '', '']
+const handleRegionChange: UniHelper.RegionPickerOnChange = (ev) => {
+  codeArr = ev.detail.code!
+  profileRef.value.fullLocation = ev.detail.value.join(' ')
+}
 // 提交修改用户信息
 const handleSubmitTap = async () => {
-  const { nickname, gender, birthday } = profileRef.value
+  const { nickname, gender, birthday, profession } = profileRef.value
+  const [provinceCode, cityCode, countyCode] = codeArr
   const res = await putMemberProfileAPI({
     nickname,
     gender,
     birthday,
+    provinceCode,
+    cityCode,
+    countyCode,
+    profession,
   })
   // 更新store
   memberStore.profile!.nickname = res.result.nickname
@@ -150,7 +161,12 @@ const handleSubmitTap = async () => {
         </view>
         <view class="form-item">
           <text class="label">城市</text>
-          <picker class="picker" mode="region" :value="profileRef?.fullLocation?.split(' ')">
+          <picker
+            class="picker"
+            mode="region"
+            :value="profileRef?.fullLocation?.split(' ')"
+            @change="handleRegionChange"
+          >
             <view v-if="profileRef?.fullLocation">{{ profileRef.fullLocation }}</view>
             <view class="placeholder" v-else>请选择城市</view>
           </picker>
@@ -161,7 +177,7 @@ const handleSubmitTap = async () => {
             class="input"
             type="text"
             placeholder="请填写职业"
-            :value="profileRef?.profession"
+            v-model="profileRef!.profession"
           />
         </view>
       </view>
