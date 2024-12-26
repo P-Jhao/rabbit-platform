@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { getMemberProfileAPI, putMemberProfileAPI } from '@/services/profile'
-import type { ProfileDetail } from '@/types/member'
+import { useMemberStore } from '@/stores'
+import type { Gender, ProfileDetail } from '@/types/member'
 import { onLoad } from '@dcloudio/uni-app'
 import { ref } from 'vue'
 
@@ -17,6 +18,8 @@ const getProfileData = async () => {
 onLoad(() => {
   getProfileData()
 })
+//更新仓库
+const memberStore = useMemberStore()
 
 // 修改用户头像
 const handleAvatarUpload = async () => {
@@ -35,7 +38,10 @@ const handleAvatarUpload = async () => {
           console.log(res)
           if (res.statusCode === 200) {
             // 上传成功
-            profileRef.value!.avatar = JSON.parse(res.data).avatar
+            const avatar = JSON.parse(res.data).avatar
+            profileRef.value!.avatar = avatar
+            // 更新store对象
+            memberStore.profile!.avatar = avatar
             uni.showToast({
               title: '上传成功',
               icon: 'success',
@@ -53,15 +59,27 @@ const handleAvatarUpload = async () => {
   })
 }
 
+// 处理性别修改
+const handleGenderChange: UniHelper.RadioGroupOnChange = (ev) => {
+  profileRef.value.gender = ev.detail.value as Gender
+}
+
 // 提交修改用户信息
 const handleSubmitTap = async () => {
-  await putMemberProfileAPI({
+  const res = await putMemberProfileAPI({
     nickname: profileRef.value?.nickname,
+    gender: profileRef.value?.gender,
   })
+  // 更新store
+  memberStore.profile!.nickname = res.result.nickname
   uni.showToast({
     title: '保存成功',
     icon: 'success',
   })
+
+  setTimeout(() => {
+    uni.navigateBack()
+  }, 500)
 }
 </script>
 
@@ -98,7 +116,7 @@ const handleSubmitTap = async () => {
         </view>
         <view class="form-item">
           <text class="label">性别</text>
-          <radio-group>
+          <radio-group @change="handleGenderChange">
             <label class="radio">
               <radio value="男" color="#27ba9b" :checked="profileRef?.gender !== '女'" />
               男
