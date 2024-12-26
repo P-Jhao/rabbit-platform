@@ -95,5 +95,26 @@
 				"selectedIconPath": "static/tabs/user_selected.png"
 			}
 		]
+	},
+	// 分包加载规则
+	"subPackages": [
+		{
+			"root": "pagesMember",
+			"pages": [
+				{
+					"path": "settings/settings",
+					"style": {
+						"navigationBarTitleText": "设置"
+					}
+				}
+			]
+		}
+	],
+	// 分包预加载规则
+	"preloadRule": {
+		"pages/my/my":{
+			"network": "all",
+			"packages": ["pagesMember"]
+		}
 	}
 }
