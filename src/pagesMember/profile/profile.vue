@@ -64,11 +64,18 @@ const handleGenderChange: UniHelper.RadioGroupOnChange = (ev) => {
   profileRef.value.gender = ev.detail.value as Gender
 }
 
+// 修改生日
+const handleDateChange: UniHelper.DatePickerOnChange = (ev) => {
+  profileRef.value.birthday = ev.detail.value
+}
+
 // 提交修改用户信息
 const handleSubmitTap = async () => {
+  const { nickname, gender, birthday } = profileRef.value
   const res = await putMemberProfileAPI({
-    nickname: profileRef.value?.nickname,
-    gender: profileRef.value?.gender,
+    nickname,
+    gender,
+    birthday,
   })
   // 更新store
   memberStore.profile!.nickname = res.result.nickname
@@ -135,6 +142,7 @@ const handleSubmitTap = async () => {
             start="1900-01-01"
             :end="new Date()"
             :value="profileRef?.birthday"
+            @change="handleDateChange"
           >
             <view v-if="profileRef?.birthday">{{ profileRef.birthday }}</view>
             <view class="placeholder" v-else>请选择日期</view>
