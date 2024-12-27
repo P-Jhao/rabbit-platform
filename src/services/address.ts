@@ -1,4 +1,5 @@
 import type { AddressParams } from '@/types/address'
+import type { AddressItem } from '@/types/goods'
 import { http } from '@/utils/http'
 
 export const postMemberAddressAPI = async (data: AddressParams) => {
@@ -6,5 +7,12 @@ export const postMemberAddressAPI = async (data: AddressParams) => {
     method: 'POST',
     url: '/member/address',
     data,
+  })
+}
+
+export const getMemberAddressAPI = async () => {
+  return await http<AddressItem[]>({
+    method: 'GET',
+    url: '/member/address',
   })
 }
