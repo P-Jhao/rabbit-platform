@@ -31,3 +31,10 @@ export const putMemberAddressByIdAPI = async (id: string, data: AddressParams) =
     data,
   })
 }
+
+export const deleteMemberAddressByIdAPI = async (id: string) => {
+  return await http<AddressItem>({
+    method: 'DELETE',
+    url: `/member/address/${id}`,
+  })
+}
