@@ -16,3 +16,10 @@ export const getMemberAddressAPI = async () => {
     url: '/member/address',
   })
 }
+
+export const getMemberAddressByIdAPI = async (id: string) => {
+  return await http<AddressItem>({
+    method: 'GET',
+    url: `/member/address/${id}`,
+  })
+}
