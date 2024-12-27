@@ -23,3 +23,11 @@ export const getMemberAddressByIdAPI = async (id: string) => {
     url: `/member/address/${id}`,
   })
 }
+
+export const putMemberAddressByIdAPI = async (id: string, data: AddressParams) => {
+  return await http<AddressItem>({
+    method: 'PUT',
+    url: `/member/address/${id}`,
+    data,
+  })
+}
