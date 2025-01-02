@@ -16,3 +16,13 @@ export const getMemberCart = async () => {
     url: '/member/cart',
   })
 }
+
+export const deleteMemberCart = async (ids: string[]) => {
+  return await http({
+    method: 'DELETE',
+    url: '/member/cart',
+    data: {
+      ids,
+    },
+  })
+}
