@@ -109,3 +109,8 @@ export type AddressItem = {
   /** 省市区 */
   fullLocation: string
 }
+
+export type CartParams = {
+  skuId: string
+  count: number
+}

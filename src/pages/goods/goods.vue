@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { getGoodsByIdAPI } from '@/services/goods'
+import { getGoodsByIdAPI, postMemberCart } from '@/services/goods'
 import type { GoodsResult } from '@/types/goods'
 import { onLoad } from '@dcloudio/uni-app'
 import { computed, ref } from 'vue'
 import AddressPanel from './components/AddressPanel.vue'
 import ServicePanel from './components/ServicePanel.vue'
 import type {
+  SkuPopupEvent,
   SkuPopupInstanceType,
   SkuPopupLocaldata,
 } from '@/components/vk-data-goods-sku-popup/vk-data-goods-sku-popup'
@@ -96,10 +97,39 @@ const skuPopupRef = ref<SkuPopupInstanceType>()
 const selectText = computed(() => {
   return skuPopupRef.value?.selectArr?.join(' ').trim() || '请选择商品规格'
 })
+
+// 添加购物车
+const handleAddCart = async (ev: SkuPopupEvent) => {
+  await postMemberCart({
+    skuId: ev._id,
+    count: ev.buy_num,
+  })
+  uni.showToast({
+    title: '添加成功',
+    icon: 'success',
+  })
+  isShowSku.value = false
+}
 </script>
 
 <template>
   <scroll-view scroll-y class="viewport">
+    <!-- SKU弹窗组件 -->
+    <vk-data-goods-sku-popup
+      v-model="isShowSku"
+      :localdata="localData"
+      :mode="skuMode"
+      add-cart-background-color="#FFA868"
+      buy-now-background-color="#27BA9B"
+      ref="skuPopupRef"
+      :active-style="{
+        color: '#27BA9B',
+        borderColor: '#27BA9B',
+        backgroundColor: '#E9F8F5',
+      }"
+      @add-cart="handleAddCart"
+    />
+
     <!-- 基本信息 -->
     <view class="goods">
       <!-- 商品主图 -->
@@ -125,21 +155,6 @@ const selectText = computed(() => {
         <view class="name ellipsis">{{ goodsResultRef?.name }} </view>
         <view class="desc"> {{ goodsResultRef?.desc }} </view>
       </view>
-
-      <!-- SKU弹窗组件 -->
-      <vk-data-goods-sku-popup
-        v-model="isShowSku"
-        :localdata="localData"
-        :mode="skuMode"
-        add-cart-background-color="#FFA868"
-        buy-now-background-color="#27BA9B"
-        ref="skuPopupRef"
-        :active-style="{
-          color: '#27BA9B',
-          borderColor: '#27BA9B',
-          backgroundColor: '#E9F8F5',
-        }"
-      />
 
       <!-- 操作面板 -->
       <view class="action">
