@@ -63,6 +63,31 @@ const handleChangeSelectedAll = () => {
   cartList.value.forEach((item) => (item.selected = _isSelected))
   putMemberCartSelectedAllAPI(_isSelected)
 }
+
+// 处理底部结算信息
+const selectedCarList = computed(() => {
+  return cartList.value.filter((v) => v.selected)
+})
+
+const selectedCarListCount = computed(() => {
+  return selectedCarList.value.reduce((sum, item) => (sum += item.count), 0)
+})
+
+const selectedCarListAmount = computed(() => {
+  return selectedCarList.value.reduce((sum, item) => (sum += item.price * item.count), 0).toFixed(2)
+})
+
+const handlePayment = () => {
+  if (selectedCarListCount.value === 0) {
+    return uni.showToast({
+      title: '请选择商品',
+      icon: 'none',
+    })
+  }
+  uni.showToast({
+    title: '待完成',
+  })
+}
 </script>
 
 <template>
@@ -134,9 +159,15 @@ const handleChangeSelectedAll = () => {
           >全选</text
         >
         <text class="text">合计:</text>
-        <text class="amount">100</text>
+        <text class="amount">{{ selectedCarListAmount }}</text>
         <view class="button-grounp">
-          <view class="button payment-button" :class="{ disabled: true }"> 去结算(10) </view>
+          <view
+            class="button payment-button"
+            :class="{ disabled: selectedCarListCount === 0 }"
+            @tap="handlePayment"
+          >
+            去结算({{ selectedCarListCount }})
+          </view>
         </view>
       </view>
     </template>
