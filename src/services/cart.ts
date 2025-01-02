@@ -37,3 +37,13 @@ export const putMemberCartBySkuIdAPI = async (
     data,
   })
 }
+
+export const putMemberCartSelectedAllAPI = async (selected: boolean) => {
+  return await http({
+    method: 'PUT',
+    url: '/member/cart/selected',
+    data: {
+      selected,
+    },
+  })
+}
