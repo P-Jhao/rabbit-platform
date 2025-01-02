@@ -26,3 +26,14 @@ export const deleteMemberCart = async (ids: string[]) => {
     },
   })
 }
+
+export const putMemberCartBySkuIdAPI = async (
+  skuId: string,
+  data: { selected?: boolean; count?: number },
+) => {
+  return await http({
+    method: 'PUT',
+    url: `/member/cart/${skuId}`,
+    data,
+  })
+}
