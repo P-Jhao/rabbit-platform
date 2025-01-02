@@ -5,6 +5,7 @@ import { onLoad } from '@dcloudio/uni-app'
 import { ref } from 'vue'
 import AddressPanel from './components/AddressPanel.vue'
 import ServicePanel from './components/ServicePanel.vue'
+import type { SkuPopupLocaldata } from '@/components/vk-data-goods-sku-popup/vk-data-goods-sku-popup'
 
 // 获取屏幕边界到安全区域距离
 const { safeAreaInsets } = uni.getSystemInfoSync()
@@ -18,6 +19,31 @@ const goodsResultRef = ref<GoodsResult>()
 const getGoodsData = async () => {
   const res = await getGoodsByIdAPI(query.id)
   goodsResultRef.value = res.result
+  console.log(res.result)
+  const { id, name, mainPictures, specs, skus } = res.result
+  // 将商品数据渲染到sku
+  localData.value = {
+    _id: id,
+    name,
+    goods_thumb: mainPictures[0],
+    spec_list: specs.map((v) => {
+      return {
+        name: v.name,
+        list: v.values,
+      }
+    }),
+    sku_list: skus.map((v) => {
+      return {
+        _id: v.id,
+        goods_id: id,
+        goods_name: name,
+        image: v.picture,
+        price: v.price * 100,
+        sku_name_arr: v.specs.map((vv) => vv.valueName),
+        stock: v.inventory,
+      }
+    }),
+  }
 }
 
 onLoad(() => {
@@ -47,6 +73,10 @@ const handleOpenTap = (name: typeof popupNameRef.value) => {
   popupNameRef.value = name
   popup.value?.open()
 }
+
+// 处理sku弹窗组件
+const isShowSku = ref(false)
+const localData = ref({} as SkuPopupLocaldata)
 </script>
 
 <template>
@@ -77,15 +107,18 @@ const handleOpenTap = (name: typeof popupNameRef.value) => {
         <view class="desc"> {{ goodsResultRef?.desc }} </view>
       </view>
 
+      <!-- SKU弹窗组件 -->
+      <vk-data-goods-sku-popup v-model="isShowSku" :localdata="localData" />
+
       <!-- 操作面板 -->
       <view class="action">
-        <view class="item arrow">
+        <view class="item arrow" @tap="isShowSku = true">
           <text class="label">选择</text>
           <text class="text ellipsis"> 请选择商品规格 </text>
         </view>
         <view class="item arrow" @tap="handleOpenTap('address')">
           <text class="label">送至</text>
-          <text class="text ellipsis"> 请选择收获地址 </text>
+          <text class="text ellipsis"> 请选择收货地址 </text>
         </view>
         <view class="item arrow" @tap="handleOpenTap('service')">
           <text class="label">服务</text>
