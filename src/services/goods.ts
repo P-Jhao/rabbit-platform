@@ -1,4 +1,4 @@
-import type { CartParams, GoodsResult } from '@/types/goods'
+import type { GoodsResult } from '@/types/goods'
 import { http } from '@/utils/http'
 
 export const getGoodsByIdAPI = async (id: string) => {
@@ -6,13 +6,5 @@ export const getGoodsByIdAPI = async (id: string) => {
     method: 'GET',
     url: '/goods',
     data: { id },
-  })
-}
-
-export const postMemberCart = async (data: CartParams) => {
-  return await http({
-    method: 'POST',
-    url: '/member/cart',
-    data,
   })
 }
