@@ -2,10 +2,13 @@
 import { getGoodsByIdAPI } from '@/services/goods'
 import type { GoodsResult } from '@/types/goods'
 import { onLoad } from '@dcloudio/uni-app'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import AddressPanel from './components/AddressPanel.vue'
 import ServicePanel from './components/ServicePanel.vue'
-import type { SkuPopupLocaldata } from '@/components/vk-data-goods-sku-popup/vk-data-goods-sku-popup'
+import type {
+  SkuPopupInstanceType,
+  SkuPopupLocaldata,
+} from '@/components/vk-data-goods-sku-popup/vk-data-goods-sku-popup'
 
 // 获取屏幕边界到安全区域距离
 const { safeAreaInsets } = uni.getSystemInfoSync()
@@ -75,8 +78,24 @@ const handleOpenTap = (name: typeof popupNameRef.value) => {
 }
 
 // 处理sku弹窗组件
+enum SkuMode {
+  Both = 1,
+  Cart = 2,
+  Buy = 3,
+}
 const isShowSku = ref(false)
 const localData = ref({} as SkuPopupLocaldata)
+const skuMode = ref<SkuMode>(SkuMode.Both)
+const openSkuPopup = (val: SkuMode) => {
+  isShowSku.value = true
+  skuMode.value = val
+}
+
+// 商品规格选项显示
+const skuPopupRef = ref<SkuPopupInstanceType>()
+const selectText = computed(() => {
+  return skuPopupRef.value?.selectArr?.join(' ').trim() || '请选择商品规格'
+})
 </script>
 
 <template>
@@ -108,13 +127,25 @@ const localData = ref({} as SkuPopupLocaldata)
       </view>
 
       <!-- SKU弹窗组件 -->
-      <vk-data-goods-sku-popup v-model="isShowSku" :localdata="localData" />
+      <vk-data-goods-sku-popup
+        v-model="isShowSku"
+        :localdata="localData"
+        :mode="skuMode"
+        add-cart-background-color="#FFA868"
+        buy-now-background-color="#27BA9B"
+        ref="skuPopupRef"
+        :active-style="{
+          color: '#27BA9B',
+          borderColor: '#27BA9B',
+          backgroundColor: '#E9F8F5',
+        }"
+      />
 
       <!-- 操作面板 -->
       <view class="action">
-        <view class="item arrow" @tap="isShowSku = true">
+        <view class="item arrow" @tap="openSkuPopup(SkuMode.Both)">
           <text class="label">选择</text>
-          <text class="text ellipsis"> 请选择商品规格 </text>
+          <text class="text ellipsis"> {{ selectText }} </text>
         </view>
         <view class="item arrow" @tap="handleOpenTap('address')">
           <text class="label">送至</text>
@@ -191,8 +222,8 @@ const localData = ref({} as SkuPopupLocaldata)
       </navigator>
     </view>
     <view class="buttons">
-      <view class="addcart"> 加入购物车 </view>
-      <view class="buynow"> 立即购买 </view>
+      <view class="addcart" @tap="openSkuPopup(SkuMode.Cart)"> 加入购物车 </view>
+      <view class="buynow" @tap="openSkuPopup(SkuMode.Buy)"> 立即购买 </view>
     </view>
   </view>
 
